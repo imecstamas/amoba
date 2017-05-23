@@ -10,19 +10,13 @@ public class Amoba {
 
     public static final int WIN = 200000;
 
-    public static final int NINF = Integer.MIN_VALUE;
-
     private int t[][];
-    //a minimalis osszeg egy sorban/oszlopban/atlon
-    private int j;
-    //k - az amoba merete
     private int k;
     private Validator validator;
     private Move move;
-    boolean first;
+    private boolean first;
 
     public Amoba(int k, int j, boolean useAlphaBeta) {
-        this.j = j;
         this.k = k;
         t = new int[k][k];
         for (int i = 0; i < k; i++) {
@@ -44,7 +38,7 @@ public class Amoba {
         return success;
     }
 
-    boolean step(int x, int y) {
+    private boolean step(int x, int y) {
         boolean success = step(x, y, PLAYER);
         if (success) {
             if (first) {
@@ -57,7 +51,7 @@ public class Amoba {
         return success;
     }
 
-    void botStep() {
+    private void botStep() {
         if (first) {
             move.search(k * k, BOT);
             first = false;
@@ -66,18 +60,18 @@ public class Amoba {
         step(coord.x, coord.y, BOT);
     }
 
-    boolean isOver() {
+    private boolean isOver() {
         return validator.isOver();
     }
 
-    int winner() {
+    private int winner() {
         if (validator.isOver(BOT)) return BOT;
         else if (validator.isOver(PLAYER)) return PLAYER;
         else if (validator.isOver()) return 0;
         else return -1;
     }
 
-    void showTable() {
+    private void showTable() {
         for (int j = 0; j < k; j++) System.out.print("+--");
         System.out.println("+");
         for (int i = 0; i < k; i++) {
@@ -92,7 +86,7 @@ public class Amoba {
     }
 
     public static void main(String[] args) {
-        Amoba amoba = new Amoba(10, 5, true);
+        Amoba amoba = new Amoba(10, 5, false);
         amoba.showTable();
         int x, y;
         Scanner scanner = new Scanner(System.in);
@@ -108,5 +102,6 @@ public class Amoba {
                 amoba.showTable();
             }
         }
+        System.out.println("A jatek veget ert, a gyoztes: " + amoba.winner());
     }
 }

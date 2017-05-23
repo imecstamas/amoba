@@ -7,7 +7,6 @@ import java.util.List;
 public class Node {
     public int x;
     public int y;
-    public int n;
     public int next;
     public List<Node> possibilities;
     public int value;
