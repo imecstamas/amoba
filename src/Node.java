@@ -9,7 +9,7 @@ public class Node {
     public int y;
     public int next;
     public List<Node> possibilities;
-    public int value;
+    public long value;
 
     public Node() {
         x = -1;

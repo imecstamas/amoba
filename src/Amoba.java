@@ -1,5 +1,3 @@
-import java.util.Scanner;
-
 /**
  * Created by ocsmen on 5/22/2017.
  */
@@ -8,11 +6,12 @@ public class Amoba {
     public static final int PLAYER = 1;
     public static final int BOT = 2;
 
-    public static final int WIN = 200000;
+    public static final long WIN = 200000;
 
     private int t[][];
     private int k;
     private Validator validator;
+    public Grafikus grafikus;
     private Move move;
     private boolean first;
 
@@ -24,6 +23,7 @@ public class Amoba {
             for (int jj = 0; jj < k; jj++)
                 t[i][jj] = 0;
         }
+        grafikus = new Grafikus(k);
         validator = new Validator(k, j, t);
         move = new Move(k, j, t, useAlphaBeta);
         first = true;
@@ -35,19 +35,19 @@ public class Amoba {
             t[x][y] = player;
             success = true;
         }
+        grafikus.setButtonValue(x, y, player);
         return success;
     }
 
-    private boolean step(int x, int y) {
+    private boolean playerStep(int x, int y) {
         boolean success = step(x, y, PLAYER);
         if (success) {
             if (first) {
-                move.search(k * k, PLAYER);
+                move.search(k * k - 1, BOT);
                 first = false;
             }
             move.next(x, y);
         }
-
         return success;
     }
 
@@ -86,22 +86,36 @@ public class Amoba {
     }
 
     public static void main(String[] args) {
-        Amoba amoba = new Amoba(10, 5, false);
+        Amoba amoba = new Amoba(5, 4, true);
         amoba.showTable();
-        int x, y;
-        Scanner scanner = new Scanner(System.in);
-        while (!amoba.isOver()) {
-            System.out.print("Add meg a lepesed: ");
-            do {
-                x = scanner.nextInt();
-                y = scanner.nextInt();
-            } while (!amoba.step(x, y));
+        amoba.grafikus.setButtonClickListener((x, y) -> {
+            amoba.playerStep(x, y);
             amoba.showTable();
             if (!amoba.isOver()) {
                 amoba.botStep();
                 amoba.showTable();
+
+                if (amoba.isOver()) {
+                    amoba.grafikus.showWinner(amoba.winner());
+                }
+            } else {
+                amoba.grafikus.showWinner(amoba.winner());
             }
-        }
-        System.out.println("A jatek veget ert, a gyoztes: " + amoba.winner());
+        });
+//        int x, y;
+//        Scanner scanner = new Scanner(System.in);
+//        while (!amoba.isOver()) {
+//            System.out.print("Add meg a lepesed: ");
+//            do {
+//                x = scanner.nextInt();
+//                y = scanner.nextInt();
+//            } while (!amoba.playerStep(x, y));
+//            amoba.showTable();
+//            if (!amoba.isOver()) {
+//                amoba.botStep();
+//                amoba.showTable();
+//            }
+//        }
+//        System.out.println("A jatek veget ert, a gyoztes: " + amoba.winner());
     }
 }

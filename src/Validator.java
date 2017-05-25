@@ -18,8 +18,8 @@ public class Validator {
         return v;
     }
 
-    int heuristicValueOnePlayer(int player){
-        int value = 0;
+    long heuristicValueOnePlayer(int player) {
+        long value = 0;
         int sx[] = {-1,0,1,1};
         int sy[] = { 1,1,1,0};
         for(int i = 0; i < k && value < Amoba.WIN; i++){
@@ -30,7 +30,7 @@ public class Validator {
                         int l = search(i,j,sx[c],sy[c]);
                         int lock1 = safeGet(i-sx[c],j-sy[c]);
                         int lock2 = safeGet(i+l*sx[c],j+l*sy[c]);
-                        if (l == j) value = Amoba.WIN;
+                        if (l == Validator.this.j) value = Amoba.WIN;
                         else if (lock1 == 0 && lock2 == 0) value += valueByLength(l);
                         else if (lock1 != 0 && lock2 == 0) value += valueByLength(l)/2;
                         else if (lock1 == 0 && lock2 != 0) value += valueByLength(l)/2;
@@ -86,14 +86,23 @@ public class Validator {
     }
 
     boolean isOver(){
-        return isOver(Amoba.PLAYER) || isOver(Amoba.BOT);
+        boolean isDraw = true;
+        for (int i = 0; i < k && isDraw; i++) {
+            for (int j = 0; j < k && isDraw; j++) {
+                if (t[i][j] == 0) {
+                    isDraw = false;
+                }
+            }
+        }
+        return isDraw || isOver(Amoba.PLAYER) || isOver(Amoba.BOT);
     }
 
 
-    int heuristicValue(int player){
-        int hPlayer = heuristicValueOnePlayer(player);
-        int hPlayer2 = heuristicValueOnePlayer(3 - player);
+    long heuristicValue(int player) {
+        long hPlayer = heuristicValueOnePlayer(player);
+        long hPlayer2 = heuristicValueOnePlayer(3 - player);
         if (hPlayer == Amoba.WIN && hPlayer2 != Amoba.WIN) return Amoba.WIN;
+        else if ((hPlayer != Amoba.WIN && hPlayer2 == Amoba.WIN)) return -Amoba.WIN;
         else return hPlayer - hPlayer2;
     }
 }
