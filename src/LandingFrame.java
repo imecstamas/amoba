@@ -8,10 +8,6 @@ import java.awt.*;
  */
 public class LandingFrame extends JFrame {
 
-
-    private static final int SERVER = 0;
-    private static final int CLIENT = 1;
-
     Server server;
     Client client;
     Gson gson;

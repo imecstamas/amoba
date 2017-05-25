@@ -99,7 +99,7 @@ public class Amoba {
     }
 
     public static void main(String[] args) {
-        Amoba amoba = new Amoba(5, 4, true, "Amoba");
+        Amoba amoba = new Amoba(8, 5, true, "Amoba");
         amoba.showTable();
         amoba.grafikus.setButtonClickListener((x, y) -> {
             amoba.playerStep(x, y);
