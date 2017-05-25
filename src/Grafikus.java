@@ -8,10 +8,12 @@ public class Grafikus extends JFrame {
         void onButtonClicked(int x, int y);
     }
 
+    private int dim;
     private PositionButton[][] matrixButtons;
     private ButtonClickListener buttonClickListener;
 
-    public Grafikus(int dim) {
+    public Grafikus(int dim, String title) {
+        this.dim = dim;
         matrixButtons = new PositionButton[dim][dim];
         setLayout(new GridLayout(dim, dim));
         for (int i = 0; i < dim; i++) {
@@ -24,7 +26,7 @@ public class Grafikus extends JFrame {
                 add(matrixButtons[i][j]);
             }
         }
-        setTitle("Amoba");
+        setTitle(title);
         setBounds(200, 0, 600, 600);
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -45,6 +47,14 @@ public class Grafikus extends JFrame {
             JOptionPane.showMessageDialog(this, "A gyoztes: O");
         } else {
             JOptionPane.showMessageDialog(this, "A jatek dontetlen");
+        }
+    }
+
+    public void enableButtons(boolean enable) {
+        for (int i = 0; i < dim; i++) {
+            for (int j = 0; j < dim; j++) {
+                matrixButtons[i][j].setEnabled(enable);
+            }
         }
     }
 }
