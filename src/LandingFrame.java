@@ -51,30 +51,36 @@ public class LandingFrame extends JFrame {
                     System.out.println("Szerver");
                     String portServer = JOptionPane.showInputDialog("Add meg a port-ot:");
                     server = new Server(Integer.parseInt(portServer));
-                    Amoba amoba = new Amoba(5, 4, true, "Szerver");
-                    amoba.showTable();
-                    amoba.grafikus.setButtonClickListener((x, y) -> {
-                        amoba.multiplayerStep(x, y, Amoba.O);
-                        amoba.grafikus.enableButtons(false);
-                        server.send(gson.toJson(new Message("move", x, y)));
-                        if (amoba.isOver()) {
-                            amoba.grafikus.showWinner(amoba.winner());
-                        }
-                    });
-
-                    LandingFrame.this.setVisible(false);
-                    LandingFrame.this.dispose();
+                    server.listen();
+                    final Amoba[] amoba2 = new Amoba[1];
+                    final int[] tableSize = {0};
+                    final int[] gameLength = {0};
                     server.setMessageReceivedListener(message -> {
                         Message m = gson.fromJson(message, Message.class);
-                        if (m.cmd.equals("move")) {
-                            amoba.multiplayerStep(m.p1, m.p2, Amoba.X);
-                            if (amoba.isOver()) {
-                                amoba.grafikus.showWinner(amoba.winner());
-                            }
-                            amoba.grafikus.enableButtons(true);
+                        switch (m.cmd) {
+                            case Message.SIZE:
+                                tableSize[0] = m.p1;
+                                if (gameLength[0] != 0) {
+                                    amoba2[0] = createServerAmoba(server, tableSize[0], gameLength[0]);
+                                }
+                                break;
+                            case Message.LENGTH:
+                                gameLength[0] = m.p1;
+                                if (tableSize[0] != 0) {
+                                    amoba2[0] = createServerAmoba(server, tableSize[0], gameLength[0]);
+                                }
+                                break;
+                            case Message.MOVE:
+                                if (amoba2[0] != null) {
+                                    amoba2[0].multiplayerStep(m.p1, m.p2, Amoba.X);
+                                    if (amoba2[0].isOver()) {
+                                        amoba2[0].grafikus.showWinner(amoba2[0].winner());
+                                    }
+                                    amoba2[0].grafikus.enableButtons(true);
+                                }
+                                break;
                         }
                     });
-                    server.listen();
 
                     break;
                 case 1:
@@ -82,28 +88,33 @@ public class LandingFrame extends JFrame {
                     String portClient = JOptionPane.showInputDialog("Add meg a port-ot:");
                     String host = JOptionPane.showInputDialog("Add meg a host-ot:");
                     client = new Client(host, Integer.parseInt(portClient));
-                    Amoba amoba2 = new Amoba(5, 4, true, "Kliens");
-                    amoba2.showTable();
-                    amoba2.grafikus.setButtonClickListener((x, y) -> {
-                        amoba2.multiplayerStep(x, y, Amoba.X);
-                        client.send(gson.toJson(new Message("move", x, y)));
-                        if (amoba2.isOver()) {
-                            amoba2.grafikus.showWinner(amoba2.winner());
-                        }
-                        amoba2.grafikus.enableButtons(false);
-                    });
-                    client.setMessageReceivedListener(message -> {
-                        Message m = gson.fromJson(message, Message.class);
-                        if (m.cmd.equals("move")) {
-                            amoba2.multiplayerStep(m.p1, m.p2, Amoba.O);
-                            if (amoba2.isOver()) {
-                                amoba2.grafikus.showWinner(amoba2.winner());
-                            }
-                            amoba2.grafikus.enableButtons(true);
+                    int size = Integer.parseInt(JOptionPane.showInputDialog("A jatek merete:"));
+                    int length = Integer.parseInt(JOptionPane.showInputDialog("A sorozat hossza:"));
+                    client.send(gson.toJson(new Message(Message.SIZE, size, size)));
+                    client.send(gson.toJson(new Message(Message.LENGTH, length, 0)));
+                    Amoba amoba = new Amoba(size, length, true, "Kliens");
+                    amoba.grafikus.setButtonClickListener((x, y) -> {
+                        amoba.multiplayerStep(x, y, Amoba.X);
+                        amoba.grafikus.enableButtons(false);
+                        client.send(gson.toJson(new Message(Message.MOVE, x, y)));
+                        if (amoba.isOver()) {
+                            amoba.grafikus.showWinner(amoba.winner());
                         }
                     });
+
                     LandingFrame.this.setVisible(false);
                     LandingFrame.this.dispose();
+                    client.setMessageReceivedListener(message -> {
+                        Message m = gson.fromJson(message, Message.class);
+                        if (m.cmd.equals(Message.MOVE)) {
+                            amoba.multiplayerStep(m.p1, m.p2, Amoba.O);
+                            if (amoba.isOver()) {
+                                amoba.grafikus.showWinner(amoba.winner());
+                            }
+                            amoba.grafikus.enableButtons(true);
+                        }
+                    });
+
                     break;
             }
         });
@@ -118,5 +129,20 @@ public class LandingFrame extends JFrame {
 
     public static void main(String[] args) {
         new LandingFrame();
+    }
+
+    private Amoba createServerAmoba(Server server, int size, int length) {
+        Amoba amoba = new Amoba(size, length, true, "Szerver");
+        amoba.grafikus.setButtonClickListener((x, y) -> {
+            amoba.multiplayerStep(x, y, Amoba.O);
+            server.send(gson.toJson(new Message(Message.MOVE, x, y)));
+            if (amoba.isOver()) {
+                amoba.grafikus.showWinner(amoba.winner());
+            }
+            amoba.grafikus.enableButtons(false);
+        });
+        LandingFrame.this.setVisible(false);
+        LandingFrame.this.dispose();
+        return amoba;
     }
 }

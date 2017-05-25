@@ -115,20 +115,5 @@ public class Amoba {
                 amoba.grafikus.showWinner(amoba.winner());
             }
         });
-//        int x, y;
-//        Scanner scanner = new Scanner(System.in);
-//        while (!amoba.isOver()) {
-//            System.out.print("Add meg a lepesed: ");
-//            do {
-//                x = scanner.nextInt();
-//                y = scanner.nextInt();
-//            } while (!amoba.playerStep(x, y));
-//            amoba.showTable();
-//            if (!amoba.isOver()) {
-//                amoba.botStep();
-//                amoba.showTable();
-//            }
-//        }
-//        System.out.println("A jatek veget ert, a gyoztes: " + amoba.winner());
     }
 }
